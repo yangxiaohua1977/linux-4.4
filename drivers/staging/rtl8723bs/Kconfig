@@ -1,0 +1,12 @@
+config RTL8723BS
+	tristate "Realtek 8723BS SDIO or SPI WiFi"
+	default m
+	---help---
+	  Help message of RTL8723BS
+
+config WLAN_SDIO
+	bool "Enable SDIO interface for Realtek"
+	depends on RTL8723AS || RTL8723BS
+	default n
+	---help---
+	  Use memory preallocated in platform
