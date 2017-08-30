@@ -41,6 +41,7 @@
 #include <linux/acpi.h>
 #include <linux/platform_data/i2c-designware.h>
 #include "i2c-designware-core.h"
+#include <linux/clkdev.h>
 
 static u32 i2c_dw_get_clk_rate_khz(struct dw_i2c_dev *dev)
 {
@@ -94,6 +95,7 @@ static int dw_i2c_acpi_configure(struct platform_device *pdev)
 {
 	struct dw_i2c_dev *dev = platform_get_drvdata(pdev);
 	const struct acpi_device_id *id;
+//	struct clk *clk;
 
 	dev->adapter.nr = -1;
 	dev->tx_fifo_depth = 32;
@@ -106,9 +108,20 @@ static int dw_i2c_acpi_configure(struct platform_device *pdev)
 	dw_i2c_acpi_params(pdev, "SSCN", &dev->ss_hcnt, &dev->ss_lcnt, NULL);
 	dw_i2c_acpi_params(pdev, "FMCN", &dev->fs_hcnt, &dev->fs_lcnt,
 			   &dev->sda_hold_time);
+#if 1
+	dev_info(&pdev->dev, "ACPI SSCN %u:%u\n", dev->ss_hcnt, dev->ss_lcnt);
+	dev_info(&pdev->dev, "ACPI FMCN %u:%u\n", dev->fs_hcnt, dev->fs_lcnt);
+	dev_info(&pdev->dev, "ACPI SDA hold %u\n", dev->sda_hold_time);
 
+	/* Use defaults */
+	dev->ss_hcnt = dev->ss_lcnt = 0;
+	dev->fs_hcnt = dev->fs_lcnt = 0;
+	dev->sda_hold_time = 30;
+#endif
 	id = acpi_match_device(pdev->dev.driver->acpi_match_table, &pdev->dev);
 	if (id && id->driver_data)
+//		clk = clk_register_fixed_rate(&pdev->dev, dev_name(&pdev->dev), NULL, CLK_IS_ROOT, id->driver_data);
+//		clk_register_clkdev(clk, NULL, dev_name(&pdev->dev));
 		dev->accessor_flags |= (u32)id->driver_data;
 
 	return 0;
@@ -207,6 +220,9 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
 	else
 		dev->master_cfg =  DW_IC_CON_MASTER | DW_IC_CON_SLAVE_DISABLE |
 			DW_IC_CON_RESTART_EN | DW_IC_CON_SPEED_FAST;
+
+//	r = dw_i2c_acpi_configure(pdev);
+	printk("%s---ftm---two---r: %d---\n", __func__, r);
 
 	dev->clk = devm_clk_get(&pdev->dev, NULL);
 	dev->get_clk_rate_khz = i2c_dw_get_clk_rate_khz;

@@ -553,6 +553,12 @@ struct hid_device {							/* device report descriptor */
 				  struct hid_usage *, __s32);
 	void (*hiddev_report_event) (struct hid_device *, struct hid_report *);
 
+	int (*hid_get_raw_report)(struct hid_device *hid,
+                unsigned char report_number, __u8 *buf, size_t count,
+                unsigned char report_type);
+	int (*hid_output_raw_report)(struct hid_device *hid, __u8 *buf,
+                size_t count, unsigned char report_type);
+
 	/* debugging support via debugfs */
 	unsigned short debug;
 	struct dentry *debug_dir;
@@ -749,6 +755,9 @@ struct hid_ll_driver {
 	int (*output_report) (struct hid_device *hdev, __u8 *buf, size_t len);
 
 	int (*idle)(struct hid_device *hdev, int report, int idle, int reqtype);
+
+	int (*hidinput_input_event)(struct input_dev *dev,
+		                unsigned int type, unsigned int code, int value);
 };
 
 #define	PM_HINT_FULLON	1<<5

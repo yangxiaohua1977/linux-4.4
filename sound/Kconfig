@@ -135,11 +135,11 @@ config AC97_BUS
 	  sound although they're sharing the AC97 bus. Concerned drivers
 	  should "select" this.
 
-config SUPPORT_HDMI
-        bool "SUPPORT_HDMI"
-        depends on DRM_I915
-	select PM_RUNTIME
-        default y
-        help
-          Choose this option to support HDMI.
+#config SUPPORT_HDMI
+#        bool "SUPPORT_HDMI"
+#        depends on DRM_I915
+#	select PM_RUNTIME
+#        default y
+#        help
+#          Choose this option to support HDMI.
 

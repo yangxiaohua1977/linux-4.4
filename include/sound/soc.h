@@ -838,6 +838,7 @@ struct snd_soc_component {
 
 /* SoC Audio Codec device */
 struct snd_soc_codec {
+	const char *name;
 	struct device *dev;
 	const struct snd_soc_codec_driver *driver;
 
@@ -941,6 +942,7 @@ struct snd_soc_dai_link_component {
 };
 
 struct snd_soc_platform {
+	const char *name;
 	struct device *dev;
 	const struct snd_soc_platform_driver *driver;
 
@@ -1037,6 +1039,10 @@ struct snd_soc_dai_link {
 
 	/* pmdown_time is ignored at stop */
 	unsigned int ignore_pmdown_time:1;
+
+        struct list_head list; /* DAI link list of the soc card */
+        struct snd_soc_dobj dobj; /* For topology */
+
 };
 
 struct snd_soc_codec_conf {
@@ -1077,6 +1083,7 @@ struct snd_soc_card {
 	struct snd_card *snd_card;
 	struct module *owner;
 
+	struct list_head list;
 	struct mutex mutex;
 	struct mutex dapm_mutex;
 
@@ -1108,6 +1115,7 @@ struct snd_soc_card {
 	int num_links;
 	struct snd_soc_pcm_runtime *rtd;
 	int num_rtd;
+	struct list_head rtd_list;
 
 	/* optional codec specific configuration */
 	struct snd_soc_codec_conf *codec_conf;
@@ -1152,6 +1160,11 @@ struct snd_soc_card {
 	/* attached dynamic objects */
 	struct list_head dobj_list;
 
+        /* dynamic mixer and enum controls */
+        struct list_head dmixers;
+        struct list_head denums;
+        struct list_head dbytes;
+
 	/* Generic DAPM context for the card */
 	struct snd_soc_dapm_context dapm;
 	struct snd_soc_dapm_stats dapm_stats;
@@ -1195,6 +1208,10 @@ struct snd_soc_pcm_runtime {
 
 	struct snd_soc_dai **codec_dais;
 	unsigned int num_codecs;
+
+        struct list_head list; /* rtd list of the soc card */
+        struct list_head rtd_list;
+        unsigned int num; /* 0-based and monotonic increasing */
 
 	struct delayed_work delayed_work;
 #ifdef CONFIG_DEBUG_FS

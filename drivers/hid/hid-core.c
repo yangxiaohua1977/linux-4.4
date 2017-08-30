@@ -2586,6 +2586,7 @@ int hid_add_device(struct hid_device *hdev)
 	static atomic_t id = ATOMIC_INIT(0);
 	int ret;
 
+	printk("%s---ftm---37---\n", __func__);
 	if (WARN_ON(hdev->status & HID_STAT_ADDED))
 		return -EBUSY;
 
@@ -2653,6 +2654,7 @@ struct hid_device *hid_allocate_device(void)
 	struct hid_device *hdev;
 	int ret = -ENOMEM;
 
+	printk("%s---ftm---36---\n", __func__);
 	hdev = kzalloc(sizeof(*hdev), GFP_KERNEL);
 	if (hdev == NULL)
 		return ERR_PTR(ret);
