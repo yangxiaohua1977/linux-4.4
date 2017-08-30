@@ -32,7 +32,7 @@
 #include <sound/jack.h>
 #include "../../codecs/es8316.h"
 #include "../atom/sst-atom-controls.h"
-#include "../common/sst-acpi.h"
+//#include "../common/sst-acpi.h"
 #include "../common/sst-dsp.h"
 struct cht_es8316_private {
 	struct snd_soc_jack jack;
@@ -222,13 +222,14 @@ static struct snd_soc_dai_link cht_es8316_dais[] = {
 		.codec_dai_name = "snd-soc-dummy-dai",
 		.codec_name = "snd-soc-dummy",
 		.platform_name = "sst-mfld-platform",
-		.ignore_suspend = 1,
+		//.ignore_suspend = 1,
+		.nonatomic = true,
 		.dynamic = 1,
 		.dpcm_playback = 1,
 		.dpcm_capture = 1,
 		.ops = &cht_es8316_aif1_ops,
 	},
-
+#if 1
 	[MERR_DPCM_DEEP_BUFFER] = {
 		.name = "Deep-Buffer Audio Port",
 		.stream_name = "Deep-Buffer Audio",
@@ -236,13 +237,13 @@ static struct snd_soc_dai_link cht_es8316_dais[] = {
 		.codec_dai_name = "snd-soc-dummy-dai",
 		.codec_name = "snd-soc-dummy",
 		.platform_name = "sst-mfld-platform",
-		.ignore_suspend = 1,
+		//.ignore_suspend = 1,
 		.nonatomic = true,
 		.dynamic = 1,
 		.dpcm_playback = 1,
 		.ops = &cht_es8316_aif1_ops,
 	},
-
+#endif
 	[MERR_DPCM_COMPR] = {
 		.name = "Compressed Port",
 		.stream_name = "Compress",
@@ -260,11 +261,12 @@ static struct snd_soc_dai_link cht_es8316_dais[] = {
 		.platform_name = "sst-mfld-platform",
 		.no_pcm = 1,
 		.codec_dai_name = "ES8316 HiFi", /* changed w/ quirk */
-		.codec_name = "i2c-ESSX8316:00",
+		.codec_name = "i2c-ESSX8316:01",
 		.dai_fmt = SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF
 						| SND_SOC_DAIFMT_CBS_CFS,
 		.be_hw_params_fixup = cht_es8316_codec_fixup,
-		.ignore_suspend = 1,
+		//.ignore_suspend = 1,
+		.nonatomic = true,
 		.dpcm_playback = 1,
 		.dpcm_capture = 1,
 		.init = cht_es8316_init,

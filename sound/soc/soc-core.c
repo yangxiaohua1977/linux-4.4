@@ -919,9 +919,14 @@ static int soc_bind_dai_link(struct snd_soc_card *card, int num)
 	struct snd_soc_dai **codec_dais = rtd->codec_dais;
 	struct snd_soc_platform *platform;
 	const char *platform_name;
+	struct device_node *platform_of_node;
 	int i;
 
 	dev_dbg(card->dev, "ASoC: binding %s at idx %d\n", dai_link->name, num);
+	printk("%s---ftm---ASoC: binding %s at idx %d\n", __func__, dai_link->name, num);
+        printk("%s---ftm---cpu_name: %s---\n", __func__, dai_link->cpu_name);
+        printk("%s---ftm---cpu_of_name: %s---\n", __func__, dai_link->cpu_of_node);
+	printk("%s---ftm---cpu_dai_name: %s---\n", __func__, dai_link->cpu_dai_name);
 
 	cpu_dai_component.name = dai_link->cpu_name;
 	cpu_dai_component.of_node = dai_link->cpu_of_node;
@@ -936,11 +941,13 @@ static int soc_bind_dai_link(struct snd_soc_card *card, int num)
 	rtd->num_codecs = dai_link->num_codecs;
 
 	/* Find CODEC from registered CODECs */
+	codec_dais = rtd->codec_dais;
 	for (i = 0; i < rtd->num_codecs; i++) {
 		codec_dais[i] = snd_soc_find_dai(&codecs[i]);
 		if (!codec_dais[i]) {
 			dev_err(card->dev, "ASoC: CODEC DAI %s not registered\n",
 				codecs[i].dai_name);
+			printk("%s---ftm---ASoC: CODEC DAI %s not registered\n", __func__, codecs[i].dai_name);
 			return -EPROBE_DEFER;
 		}
 	}
@@ -976,6 +983,7 @@ static int soc_bind_dai_link(struct snd_soc_card *card, int num)
 	card->num_rtd++;
 
 	return 0;
+
 }
 
 static void soc_remove_component(struct snd_soc_component *component)
@@ -1556,7 +1564,8 @@ static int snd_soc_instantiate_card(struct snd_soc_card *card)
 
 	mutex_lock(&client_mutex);
 	mutex_lock_nested(&card->mutex, SND_SOC_CARD_CLASS_INIT);
-
+	
+	printk("%s---ftm---1---\n", __func__);
 	/* bind DAIs */
 	for (i = 0; i < card->num_links; i++) {
 		ret = soc_bind_dai_link(card, i);
@@ -1714,7 +1723,7 @@ static int snd_soc_instantiate_card(struct snd_soc_card *card)
 	snd_soc_dapm_sync(&card->dapm);
 	mutex_unlock(&card->mutex);
 	mutex_unlock(&client_mutex);
-
+	printk("%s---ftm---2---\n", __func__);
 	return 0;
 
 probe_aux_dev_err:
@@ -2318,6 +2327,10 @@ static int snd_soc_init_multicodec(struct snd_soc_card *card,
 		dai_link->codecs[0].name = dai_link->codec_name;
 		dai_link->codecs[0].of_node = dai_link->codec_of_node;
 		dai_link->codecs[0].dai_name = dai_link->codec_dai_name;
+
+                printk("%s---ftm---name: %s---of_node: %s---dai_name: %s---\n", __func__,
+                                        dai_link->codec_name, dai_link->codec_of_node, dai_link->codec_dai_name);
+
 	}
 
 	if (!dai_link->codecs) {
@@ -2341,9 +2354,10 @@ int snd_soc_register_card(struct snd_soc_card *card)
 	if (!card->name || !card->dev)
 		return -EINVAL;
 
+	printk("%s---ftm1---\n", __func__);
 	for (i = 0; i < card->num_links; i++) {
 		struct snd_soc_dai_link *link = &card->dai_link[i];
-
+		printk("%s---ftm2---\n", __func__);
 		ret = snd_soc_init_multicodec(card, link);
 		if (ret) {
 			dev_err(card->dev, "ASoC: failed to init multicodec\n");
@@ -2361,12 +2375,14 @@ int snd_soc_register_card(struct snd_soc_card *card)
 					link->name);
 				return -EINVAL;
 			}
+			printk("%s---ftm21---name: %s---%s---\n", __func__, link->name, link->codecs[j].name);
 			/* Codec DAI name must be specified */
 			if (!link->codecs[j].dai_name) {
 				dev_err(card->dev, "ASoC: codec_dai_name not set for %s\n",
 					link->name);
 				return -EINVAL;
 			}
+			printk("%s---ftm22---name: %s---%s---\n", __func__, link->name, link->codecs[j].dai_name);
 		}
 
 		/*
@@ -2379,7 +2395,7 @@ int snd_soc_register_card(struct snd_soc_card *card)
 				link->name);
 			return -EINVAL;
 		}
-
+		printk("%s---ftm23---name: %s---%s---\n", __func__, link->name, link->platform_name);
 		/*
 		 * CPU device may be specified by either name or OF node, but
 		 * can be left unspecified, and will be matched based on DAI
@@ -2391,6 +2407,7 @@ int snd_soc_register_card(struct snd_soc_card *card)
 				link->name);
 			return -EINVAL;
 		}
+		printk("%s---ftm24---name: %s---%s---\n", __func__, link->name, link->cpu_name);
 		/*
 		 * At least one of CPU DAI name or CPU device name/node must be
 		 * specified
@@ -2402,8 +2419,10 @@ int snd_soc_register_card(struct snd_soc_card *card)
 				link->name);
 			return -EINVAL;
 		}
+		printk("%s---ftm25---name: %s---%s---\n", __func__, link->name, link->cpu_dai_name);
 	}
 
+	printk("%s---ftm3---\n", __func__);
 	dev_set_drvdata(card->dev, card);
 
 	snd_soc_initialize_card_lists(card);
@@ -2437,10 +2456,12 @@ int snd_soc_register_card(struct snd_soc_card *card)
 	mutex_init(&card->mutex);
 	mutex_init(&card->dapm_mutex);
 
+	printk("%s---ftm4---\n", __func__);
 	ret = snd_soc_instantiate_card(card);
 	if (ret != 0)
 		return ret;
 
+	printk("%s---ftm5---\n", __func__);
 	/* deactivate pins to sleep state */
 	for (i = 0; i < card->num_rtd; i++) {
 		struct snd_soc_pcm_runtime *rtd = &card->rtd[i];
@@ -2457,6 +2478,7 @@ int snd_soc_register_card(struct snd_soc_card *card)
 			pinctrl_pm_select_sleep_state(cpu_dai->dev);
 	}
 
+	printk("%s---ftm6---\n", __func__);
 	return ret;
 }
 EXPORT_SYMBOL_GPL(snd_soc_register_card);

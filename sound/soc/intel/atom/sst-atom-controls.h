@@ -28,7 +28,9 @@
 
 enum {
 	MERR_DPCM_AUDIO = 0,
-//	MERR_DPCM_DEEP_BUFFER,
+#if 1
+	MERR_DPCM_DEEP_BUFFER,
+#endif
 	MERR_DPCM_COMPR,
 };
 
